@@ -16,7 +16,6 @@ uint8_t MAX_CHARS_USED = 255;
 
 // SIZE OF BYTE SEGMENTS
 uint16_t interval = 0;
-vector<bitset<8>> oxen = {};
 uint64_t output_length = 0;
 bool CURRENT_MARK = false;
 string nextFold(string file_in, uint64_t &pos)
@@ -54,40 +53,7 @@ string nextFold(string file_in, uint64_t &pos)
 
 uint64_t binaryTree(ofstream &out, string file_in, uint64_t iterated)
 {
-
-    if (iterated == 0)
-    {
-        output_length += 1;
-        if (file_in.front() < 127)
-        {
-
-            if (CURRENT_MARK == false)
-                out << (char)(140);
-            out << file_in.front();
-            CURRENT_MARK = true;
-        }
-        else
-            out << file_in.front() % 128;
-        
-        return binaryTree(out, file_in, iterated + 1);
-    }
-    if (file_in.length() - iterated == 1)
-    {
-        output_length += 1;
-        if (file_in.back() < 127)
-        {
-            if (CURRENT_MARK == false)
-                out << (char)(160);
-            out << file_in.back();
-            CURRENT_MARK = true;
-        }
-        else {
-            out << (char)(160);
-            out << file_in.back() % 128;
-            CURRENT_MARK = false;
-        }
-        return iterated + 1;
-    }
+    stringstream xma;
 
     // RETURN IF FINISHED RECURSING
     if (iterated > file_in.length())
@@ -95,89 +61,80 @@ uint64_t binaryTree(ofstream &out, string file_in, uint64_t iterated)
     if (iterated == file_in.length())
         return iterated;
 
+    if (file_in.length() - iterated == 1)
+    {
+        xma << file_in.back();
+        return iterated + 1;
+    }
+
+    if (iterated == 0)
+    {
+        output_length += 4;
+        xma << file_in.front() << "hGf";
+        out.write(xma.str().c_str(), xma.str().length());
+        xma.str("");
+        return binaryTree(out, file_in, iterated + 1);
+    }
+
     // COMPARING BYTES
     bitset<8> str_char0 = file_in[iterated];
     bitset<8> str_char1 = file_in[(iterated + 1)];
 
-    // ASSUMING CHARS ARE EQUAL
+    // AS2SUMING CHARS ARE EQUAL
     if (str_char0 == str_char1)
     {
-        if (str_char0.to_ulong() < 127)
-        {
-            if (CURRENT_MARK == false)
-                out << (char)(140);
-            out << (char)(str_char0.to_ulong() % 128);
-            output_length += 2;
-            CURRENT_MARK = true;
-        }
-        else
-        {
-            CURRENT_MARK = false;
-            out << (char)(140);
-            //out << (char)(str_char0.to_ulong() % 128);
-            output_length += 1;
-        }
+        output_length += 1;
+        xma << (char)(str_char0.to_ullong());
+        out.write(xma.str().c_str(), xma.str().length());
+        xma.str("");
         return binaryTree(out, file_in, iterated + 2);
     }
     // ASSUMING LOWER NIBBLE IS SAME
-    else if ((str_char0 ^ str_char1).to_ullong() << 4 > 0)
+    else if ((str_char0 ^ str_char1).to_ullong() % 256 << 4 > 0)
     {
-        if (str_char0.to_ulong() < 127)
-        {
-            if (CURRENT_MARK == false)
-                out << (char)(150);
-            CURRENT_MARK = true;
-            out << (char)(str_char0.to_ulong() % 128);
-            output_length += 2;
-        }
-        else
-        {
-            CURRENT_MARK = false;
-            out << (char)(str_char0.to_ulong() % 128);
-            output_length += 1;
-        }
+        xma << (char)(str_char0.to_ulong());
+        out.write(xma.str().c_str(), xma.str().length());
+        xma.str("");
+        output_length += 1;
         return binaryTree(out, file_in, iterated + 2);
     }
     // ASSUMING UPPER NIBBLE IS SAME
-    else if ((str_char0 ^ str_char1).to_ullong() >> 4 == 0)
+    else if ((str_char0 ^ str_char1).to_ullong() % 256 >> 4 == 0)
     {
-        if (str_char0.to_ulong() < 127)
-        {
-            if (CURRENT_MARK == false)
-                out << (char)(150);
-            out << (char)(str_char0.to_ulong() % 128);
-            output_length += 2;
-            CURRENT_MARK = true;
-        }
-        else
-        {
-            CURRENT_MARK = false;
-            out << (char)(str_char0.to_ulong() % 128);
-            output_length += 1;
-        }
+        output_length += 1;
+        xma << (char)(str_char0.to_ulong());
+        out.write(xma.str().c_str(), xma.str().length());
+        xma.str("");
         return binaryTree(out, file_in, iterated + 2);
     }
     // ASSUMING CHARS ARE gt/lt EACH OTHER
     // OR NOT EQUAL IN ANY SUCH WAY
     else
     {
-        out << (char)(160);
-        output_length += 1;
-        return iterated;
+        output_length += 5;
+        {
+            xma << file_in[iterated] << file_in[iterated + 1];
+            xma << "FHg";
+            CURRENT_MARK = false;
+            output_length += 5;
+        }
+        out.write(xma.str().c_str(), xma.str().length());
+        xma.str("");
+        return binaryTree(out, file_in, iterated + 2);
     }
     return iterated;
 }
 
 void compressThis(ofstream &out, string file_in)
 {
-
+    stringstream xma;
     auto y = file_in.begin();
 
     while (y != file_in.end())
     {
         string y_str = {};
         // PROBABLY NOT OPTIMZED
-        while (y_str.length() < 1250 && y != file_in.end())
+        while (y_str.length() < 250 && y != file_in.end())
         {
             y_str.push_back(*y);
             y++;
@@ -189,58 +146,76 @@ void compressThis(ofstream &out, string file_in)
         while (total < y_str.length())
         {
             total = binaryTree(out, y_str, total);
-            int spa = 0;
-            while (spa < 1 && total < y_str.length())
-            {
-                output_length++;
-                out << (char)(y_str[total]);
-                total++;
-                spa++;
-            }
         }
-        out << (char)(255);
+        xma << "{)}";
         output_length++;
     }
+
     cout << " Output File Size: " << output_length << flush;
+}
+
+string dBegin(string file_in, uint64_t x)
+{
+    return to_string((char)file_in[x]);
+}
+
+string dDupe(string file_in, uint64_t x)
+{
+    return to_string((char)file_in[x - 4] + (char)file_in[x - 4]);
+}
+
+string dNonMatch(string file_in, uint64_t x)
+{
+    return to_string((char)file_in[x - 5] + (char)file_in[x - 4]);
 }
 
 void decompString(ofstream &out, uint8_t INSTRUCTION, string file_in)
 {
-    cout << " " << file_in << " " << flush;
-    uint64_t len = 0;
+    stringstream xma;
+    uint64_t str_len = 0;
     INSTRUCTION = 0;
-    while (file_in.length() > len)
+    //cout << file_in.substr(0,20) << flush;
+    string school = file_in.substr(3, file_in.find("XMA") - 3);
+    uint64_t file_len = strtoull(school.c_str(), NULL, 10);
+
+    string unhash = "", reduced = "";
+    uint64_t c = school.length() + 6, sezi = 0, total = 0;
+
+    while (c < file_in.length() && total < file_len)
     {
-        INSTRUCTION = file_in[len];
-        len++;
-        // START BYTE
-        if (INSTRUCTION == 140)
+        if (file_in.substr(c - 3, 3) == "{)}" && file_in.substr(c, 3) == "hGf")
         {
-            out << file_in.substr(len, 1) << file_in.substr(len, 1);
-            CURRENT_MARK = 0; 
-            len++;
+            cout << ".";
+            unhash = unhash + file_in.substr(c + 3, 1);
+            total++;
+            c += 2;
+            stringstream x;
+            x << unhash;
+            out.write(x.str().c_str(),x.str().length());
+            unhash.clear();
         }
-        // END BYTE
-        else if (INSTRUCTION == 150)
+        if (file_in.substr(c + 2, 3) == "FHg")
         {
-            out << file_in.substr(len, 1) << file_in.substr(len, 1);
-            len++;
-        }
-        // EQUAL
-        else if (INSTRUCTION == 160)
+            unhash = unhash + file_in.substr(c, 1) + file_in.substr(c + 1, 1);
+            total += 2;
+            c += 3;
+        } 
+        else if (file_in.substr(c + 1, 3) == "{)}") 
         {
-            out << file_in.substr(len, 1);
-            len++;
+            unhash = unhash + file_in.substr(c, 1);
+            c += 3;
+            total++;
         }
-        else {
-            out << (file_in[len] + 128);
-            out << (file_in[len+1] + 128);
-            len += 2;
+        else
+        {
+            unhash = unhash + file_in.substr(c, 1) + file_in.substr(c, 1);
+            total += 2;
         }
-        if (file_in[len] == 255) {
-            len++;
-        }
+        c++;
     }
+    stringstream x;
+    x << unhash;
+    out.write(x.str().c_str(),x.str().length());
 }
 
 void decompLayers(string file_in, ofstream &out)
@@ -320,6 +295,10 @@ int main(int c, char *argv[])
     //cout << endl << file_pass << endl << flush;
     if (strcmp("-c", argv[1]) == 0)
     {
+        stringstream xma;
+        xma << (const char *)("MXA") << to_string(file_pass.length()).c_str() << (const char *)("XMA");
+        out.write(xma.str().c_str(), xma.str().length());
+        xma.str("");
         compressThis(out, file_pass); // String(out, file_pass);
     }
     else if (strcmp("-d", argv[1]) == 0)
