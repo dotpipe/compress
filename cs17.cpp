@@ -47,35 +47,37 @@ uint64_t analyze(ofstream &out, string file_in, uint64_t iterated)
     uint8_t hdx = 0;
     dsa = 255;
     uint8_t z = 0;
-    while (pow(2, ++z) < dx)
+    while (pow(2, ++z) <= dx)
         ;
+    
+    decx << (char)(z);
 
     for (int8_t x : fgh)
     {
-        uint8_t c = 1;
+        uint8_t c = 2;
         dsa = dsa - x;
         if (dsa > dx)
-            totals <<= 1;
+            totals <<= 2;
         else if (dsa < dx)
         {
-            totals = (totals << 2) + 2;
+            totals = (totals << 2) + 1;
             c = 2;
         }
         else if (dsa == dx)
         {
-            totals = (totals << 3) + 1;
+            totals = (totals << 3);
             c = 3;
         }
         if (dsa != dx) {
-            totals = (dsa > dx) ? (totals << z) + dsa : (totals << z) + dsa;
-            hdx += z;
+            totals <<= (z + 1) + dsa;
+            hdx += z + c + 1;
         }
         else
         {
-            hdx += c + 1;
+            hdx += c;
         }
         
-        if (hdx >= 64 - z - 2)
+        if (hdx >= 64 - z - 3)
         {
             while (totals > 0)
             {
@@ -83,7 +85,7 @@ uint64_t analyze(ofstream &out, string file_in, uint64_t iterated)
                 totals >>= 8;
             }
             hdx = 0;
-            dsa = 255;
+            dsa = 127;
         }
     }
     while (totals > 0)
@@ -106,41 +108,28 @@ void decompString(ofstream &out, uint8_t INSTRUCTION, string file_in)
 
     string unhash = "", reduced = "";
     uint64_t c = school.length() + 6, sezi = 0, total = 0;
-
-    while (total < file_len)
+    file_in = file_in.substr(school.length() + 6);
+    uint8_t byte = file_in[0];
+    file_in = file_in.substr(1);
+    byte = (1 << byte);
+    int8_t cxv = 127
+    while (sezi < file_in.length())
     {
-        if (file_in.substr(c + 1, 3) == "{)}")
-        {
-            unhash = unhash + file_in.substr(c, 1);
-            c += 4;
-            total++;
+        string current_str = file_in.substr(sezi, 8);
+        uint64_t pops = strtoull(current_str.c_str(), NULL, 10);
+        while (pops > 0) {
+            uint8_t cvb = (pops)%byte;
+            unhash.push_back(cvb);
         }
-        else if (file_in.substr(c - 3, 3) == "{)}" && file_in.substr(c, 3) == "hGf")
-        {
-            cout << "." << flush;
-            unhash = unhash + file_in.substr(c + 3, 1);
-            total++;
-            c += 4;
-            stringstream x;
-            x << unhash;
-            out.write(x.str().c_str(), x.str().length());
-            unhash.clear();
-        }
-        else if (file_in.substr(c + 2, 3) == "FHg")
-        {
-            unhash = unhash + file_in.substr(c, 1) + file_in.substr(c + 1, 1);
-            total += 2;
-            c += 5;
-        }
-        else
-        {
-            unhash = unhash + file_in.substr(c, 1) + file_in.substr(c, 1);
-            total += 2;
-        }
+        sezi = (sezi + 8);
     }
-    stringstream x;
-    x << unhash;
-    out.write(x.str().c_str(), x.str().length());
+    sezi = 0;
+    for (int8_t x : unhash)
+    {
+        xma << (char)(cxv + x);
+        cvx += x;
+    }
+    out.write(xma.str().c_str(), xma.str().length());
 }
 
 int main(int c, char *argv[])
