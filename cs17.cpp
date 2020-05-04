@@ -40,16 +40,16 @@ uint64_t analyze(ofstream &out, string file_in, uint64_t iterated)
     }
 
     bool hgd = false;
-    uint8_t dx = ((float)(gfh) / (float)(file_in.size()));
-    decx << (char)(dx);
+    int8_t dx = ((float)(gfh) / (float)(file_in.size()));
+    decx << "dfg";
     int8_t dy = 0;
     uint64_t totals = 0;
     uint8_t hdx = 0;
-    dsa = 255;
+    dsa = 127;
     uint8_t z = 0;
     while (pow(2, ++z) <= dx)
         ;
-    
+
     decx << (char)(z);
 
     for (int8_t x : fgh)
@@ -65,19 +65,21 @@ uint64_t analyze(ofstream &out, string file_in, uint64_t iterated)
         }
         else if (dsa == dx)
         {
-            totals = (totals << 3);
-            c = 3;
+            totals = (totals << 2) + 2;
+            c = 2;
         }
-        if (dsa != dx) {
-            totals <<= (z + 1) + dsa;
-            hdx += z + c + 1;
+        if (dsa != dx)
+        {
+            totals <<= (z) + abs(dsa);
+            hdx += z + c;
         }
         else
         {
+            totals <<= 2;
+            totals += 3;
             hdx += c;
         }
-        
-        if (hdx >= 64 - z - 3)
+        if (hdx >= 64 - z - 2)
         {
             while (totals > 0)
             {
@@ -103,33 +105,66 @@ void decompString(ofstream &out, uint8_t INSTRUCTION, string file_in)
     uint64_t str_len = 0;
     INSTRUCTION = 0;
     //cout << file_in.substr(0,20) << flush;
-    string school = file_in.substr(3, file_in.find("XMA") - 3);
+    string school = file_in.substr(3, file_in.find("XMA"));
     uint64_t file_len = strtoull(school.c_str(), NULL, 10);
 
     string unhash = "", reduced = "";
-    uint64_t c = school.length() + 6, sezi = 0, total = 0;
-    file_in = file_in.substr(school.length() + 6);
-    uint8_t byte = file_in[0];
+    uint64_t c = school.length() + 3, sezi = 0, total = 0;
+    file_in = file_in.substr(school.length() + 3);
+
+    if (file_in.find("dfg") == 0)
+        file_in = file_in.substr(3);
+    else
+    {
+        exit(0);
+    }
+
+    int8_t byte = file_in[0];
+    uint8_t bit = byte;
     file_in = file_in.substr(1);
-    byte = (1 << byte);
-    int8_t cxv = 127
-    while (sezi < file_in.length())
+    byte = (1 << bit);
+    int8_t cxv = 127;
+    string current_str = "";
+    for (char x : file_in)
     {
-        string current_str = file_in.substr(sezi, 8);
-        uint64_t pops = strtoull(current_str.c_str(), NULL, 10);
-        while (pops > 0) {
-            uint8_t cvb = (pops)%byte;
-            unhash.push_back(cvb);
+        current_str.push_back(x);
+        if (current_str.length() < 8)
+            continue;
+        uint64_t pops = 0; // = strtoull(current_str.c_str(), NULL, 10);
+        for (uint8_t x : current_str)
+        {
+            pops <<= 8;
+            pops += x;
         }
-        sezi = (sezi + 8);
+        
+        cxv = 127;
+        while (pops > 0)
+        {
+            
+            int8_t cvb = (pops) % byte;
+            uint8_t io = (cvb);
+            out << (char)(io);
+            pops >>= bit;
+            if (pops % 4 == 3)
+            {
+                pops >>= 2;
+                out << (char)(byte);
+            }
+            else if (pops % 4 == 2)
+            {
+                pops >>= 2;
+                out << (char)(cxv + cvb);
+            }
+            else
+            {
+                pops >>= 2;
+                out << (char)(cxv + cvb);
+            }
+            
+            cxv -= cvb;
+        }
+        current_str.clear();
     }
-    sezi = 0;
-    for (int8_t x : unhash)
-    {
-        xma << (char)(cxv + x);
-        cvx += x;
-    }
-    out.write(xma.str().c_str(), xma.str().length());
 }
 
 int main(int c, char *argv[])
