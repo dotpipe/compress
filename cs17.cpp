@@ -27,67 +27,62 @@ void nop() {}
 uint64_t analyze(ofstream &out, string file_in, uint64_t iterated)
 {
     stringstream decx;
-    int8_t dsa = 127;
+    int8_t dsa = 127, vbn = 127;
     bool dgh = false;
     vector<int8_t> fgh{};
     int64_t gfh = 0;
     fgh.push_back(file_in[0]);
-    for (int8_t x : file_in)
+
+    for (uint8_t x : file_in)
     {
-        dsa = dsa - x;
+        dsa = (dgh) ? vbn -= fgh[0] - x : vbn -= x;
+        
         fgh.push_back(dsa);
-        gfh += (dsa);
+        gfh += (!dgh) ? dsa : dsa;
+        vbn = (!dgh) ? vbn : 127;
+        dgh = (!dgh) ? true : false;
     }
 
     bool hgd = false;
-    int8_t dx = ((float)(gfh) / (float)(file_in.size()));
+    uint8_t dx = (float)(gfh)/(float)(file_in.size());
     decx << "dfg";
     int8_t dy = 0;
-    uint64_t totals = 0;
-    uint8_t hdx = 0;
+    uint64_t totals = 3;
+    uint8_t hdx = 2;
     dsa = 127;
     uint8_t z = 0;
-    while (pow(2, ++z) <= dx)
+    while (0 != (abs(dx) >> ++z))
         ;
 
-    decx << (char)(z);
+    decx << (char)(z) << (char)(dx);
 
+    cout << (int)(gfh) << " " << (int)(dx);
     for (int8_t x : fgh)
     {
-        uint8_t c = 2;
-        dsa = dsa - x;
-        if (dsa > dx)
-            totals <<= 2;
-        else if (dsa < dx)
+        uint8_t t = 0;
         {
-            totals = (totals << 2) + 1;
-            c = 2;
+            while (0 != (abs(x) >> ++t))
+                ;
+            totals <<= 1;
+            if (x < 0)
+                totals ^= 1;
+            totals <<= 3;
+            totals = totals ^ t;
+            totals <<= t;
+            totals = abs(x);
+            hdx += 3 + t + 1;
         }
-        else if (dsa == dx)
+        if (hdx >= 60)
         {
-            totals = (totals << 2) + 2;
-            c = 2;
-        }
-        if (dsa != dx)
-        {
-            totals <<= (z) + abs(dsa);
-            hdx += z + c;
-        }
-        else
-        {
-            totals <<= 2;
-            totals += 3;
-            hdx += c;
-        }
-        if (hdx >= 64 - z - 2)
-        {
+
             while (totals > 0)
             {
                 decx << (char)(uint8_t)(totals % 256);
                 totals >>= 8;
             }
-            hdx = 0;
+            hdx = 2;
             dsa = 127;
+            totals = 3;
         }
     }
     while (totals > 0)
@@ -119,15 +114,15 @@ void decompString(ofstream &out, uint8_t INSTRUCTION, string file_in)
         exit(0);
     }
 
-    int8_t byte = file_in[0];
-    uint8_t bit = byte;
-    file_in = file_in.substr(1);
-    byte = (1 << bit);
+    uint8_t bit = file_in[0];
+    uint8_t byte = file_in[1];
+    cout << (int)bit << " " << byte << flush;
+    file_in = file_in.substr(2);
     int8_t cxv = 127;
     string current_str = "";
     for (char x : file_in)
     {
-        current_str.push_back(x);
+        current_str.push_back(file_in[x]);
         if (current_str.length() < 8)
             continue;
         uint64_t pops = 0; // = strtoull(current_str.c_str(), NULL, 10);
@@ -136,32 +131,26 @@ void decompString(ofstream &out, uint8_t INSTRUCTION, string file_in)
             pops <<= 8;
             pops += x;
         }
-        
         cxv = 127;
-        while (pops > 0)
+        while (pops > 4)
         {
+            if (pops % 2 == 1)
+            {
+                pops >>= 1;
+                out << (char)(byte + cxv);
+                continue;
+            }
+            else if (pops % 2 == 0)
+            {
+                pops >>= 1;
             
-            int8_t cvb = (pops) % byte;
-            uint8_t io = (cvb);
-            out << (char)(io);
-            pops >>= bit;
-            if (pops % 4 == 3)
-            {
-                pops >>= 2;
-                out << (char)(byte);
+                uint8_t cvb = (pops) % byte;
+                pops >>= bit;
+                
+                cxv = byte - cvb;
+                uint8_t io = (cxv);
+                out << (char)(io);
             }
-            else if (pops % 4 == 2)
-            {
-                pops >>= 2;
-                out << (char)(cxv + cvb);
-            }
-            else
-            {
-                pops >>= 2;
-                out << (char)(cxv + cvb);
-            }
-            
-            cxv -= cvb;
         }
         current_str.clear();
     }
