@@ -15,12 +15,24 @@ using namespace std;
 
 void attach(string bc, vector<string> &dx, vector<string> &cx, unordered_set<string> &bx)
 {
+    string vx = "";
+    for (uint16_t ex : bc)
+    {
+        ex++;
+        if (ex == 256)
+            vx.append({1,1});
+        else 
+            vx.push_back(ex);
+    }
+    vx.push_back(1);
+    bc = vx;
     cx.push_back(bc);
     uint32_t d = bx.size();
     bx.insert(bc);
     if (bx.size() > d)
         dx.push_back(bc);
 }
+
 // Build individual dictionaries
 void webster(string temp, vector<string> &dx, vector<string> &cx)
 {
