@@ -75,6 +75,10 @@ void webster(string temp, vector<string> &dx, vector<string> &cx)
             //attach(bc, dx, cx, bx);
             i = t_i;
         }
+        else
+        {
+            cout << "?" << flush;
+        }
     }
 }
 
@@ -136,7 +140,7 @@ int main(int argc, char **argv)
             }
             else // last rollout of a dictionary
             {
-                webster(temp, dx, cx);
+                webster(temp.substr(loop_cnt * n), dx, cx);
                 temp.clear();
                 cout << cx.size() << flush;
                 loop_cnt++;
