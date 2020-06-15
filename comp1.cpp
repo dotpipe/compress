@@ -129,13 +129,10 @@ int main(int argc, char **argv)
         {
             // sets up for dictionaries (dx)
             // and also for list of what is there (cx)
-            vector<vector<string>> all_dictionaries{}, all_data{};
             vector<string> cx{}, dx{};
             if (n * loop_cnt + n < temp.length())
             {
                 webster(temp.substr(loop_cnt * n, n), dx, cx);
-                //temp = temp.substr(n);
-                //cout << (n*loop_cnt + n) << " . ." << flush;
                 loop_cnt++;
             }
             else // last rollout of a dictionary
@@ -187,14 +184,15 @@ int main(int argc, char **argv)
                                 string vz = "";
                                 while (y > 0) // setup to output
                                 {
+                                    y += 2;
                                     uint8_t v = y % 256;
                                     vz += (char)(v);
                                     y >>= 8;
                                 }
                                 if (vz.length() == 1)
-                                    vz.push_back(';'); // bumpers
+                                    vz.push_back((char)(2)); // bumpers
                                 if (vz.length() == 3)
-                                    vz.append(":"); //
+                                    vz.append((char)(2)); //
                                 len.append(vz);
                                 break;
                             }
@@ -202,9 +200,7 @@ int main(int argc, char **argv)
                     }
                     cout << "." << flush;
                     out_file << len.c_str(); // output
-
                 }
-
             }
             out_file << "%;%";
         }
