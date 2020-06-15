@@ -13,6 +13,14 @@
 
 using namespace std;
 
+void attach(string bc, vector<string> &dx, vector<string> &cx, unordered_set<string> &bx)
+{
+    cx.push_back(bc);
+    uint32_t d = bx.size();
+    bx.insert(bc);
+    if (bx.size() > d)
+        dx.push_back(bc);
+}
 // Build individual dictionaries
 void webster(string temp, vector<string> &dx, vector<string> &cx)
 {
@@ -22,48 +30,51 @@ void webster(string temp, vector<string> &dx, vector<string> &cx)
     {
         bc = "";
 
-        // If the ">" or the " " (space) is more than 10 away
+        // If the ">" or the ' ' (space) is more than 10 away
         // we just take 2 characters from the string
-        if (temp.find(" ", i) > 6)
+        if (temp.find(' ', i) > 6)
         {
             bc = temp.substr(i, 2);
             i += bc.length();
+            attach(bc, dx, cx, bx);
         }
-        /*
-        // If the ">" is closer, we take to it's position
-        else if (temp.find(">", i) != string::npos && temp.find(">", i) < temp.find(" ", i))
-        {
-            bc = temp.substr(i, (temp.find(">", i) - i + 1));
-            i += bc.length();
-        }
-        */
-        // Elsewise, we use the " " (space) and go until
+        // Elsewise, we use the ' ' (space) and go until
         // there isn't one within 5 characters.
         // Then we take the next char and we loop again
-        else if (temp.find(" ", i) != string::npos)
+        else if (temp.find('\0', i) < temp.find(' ', i))
         {
-            bc += temp.substr(i, (temp.find(" ", i) - i + 1));
+            bc = temp.substr(i, (temp.find('\0', i) - i + 1));
             i += bc.length();
+            attach(bc, dx, cx, bx);
             uint32_t t_i = i;
-            while (temp.find(" ", t_i) - t_i + 1 < 3)
+            while (temp.find('\0', t_i) - t_i + 1 < 3)
             {
-                string xvx = temp.substr(t_i, (temp.find(" ", t_i) - t_i + 1));
+                string xvx = temp.substr(t_i, (temp.find('\0', t_i) - t_i + 1));
                 //    cout << "n" << flush;
-                bc += xvx;
+                bc = xvx;
                 t_i += xvx.length();
+                attach(bc, dx, cx, bx);
             }
+            attach(bc, dx, cx, bx);
             i = t_i;
-            //cout << ";" << flush;
-            bc += temp[i];
-            i++;
         }
-        if (bc.length() <= 1)
-            bc = temp.substr(i, 2);
-        cx.push_back(bc);
-        uint32_t d = bx.size();
-        bx.insert(bc);
-        if (bx.size() > d)
-            dx.push_back(bc);
+        else if (temp.find(' ', i) < temp.find('\0', i))
+        {
+            bc = temp.substr(i, (temp.find(' ', i) - i + 1));
+            i += bc.length();
+            attach(bc, dx, cx, bx);
+            uint32_t t_i = i;
+            while (temp.find(' ', t_i) - t_i + 1 < 3)
+            {
+                string xvx = temp.substr(t_i, (temp.find(' ', t_i) - t_i + 1));
+                //    cout << "n" << flush;
+                bc = xvx;
+                t_i += xvx.length();
+                attach(bc, dx, cx, bx);
+            }
+            //attach(bc, dx, cx, bx);
+            i = t_i;
+        }
     }
 }
 
@@ -94,7 +105,7 @@ int main(int argc, char **argv)
 
     uint32_t sizeofall = 0;
     stringstream file_in;
-    uint32_t i = 0, n = 120000;
+    uint32_t i = 0, n = 100000;
 
     // load in_file
     file_in << in_file.rdbuf();
@@ -102,7 +113,7 @@ int main(int argc, char **argv)
     string temp = file_in.str();
 
     cout << "\nOriginal File Size: "
-         << temp.length() << " " << flush;
+         << temp.length() << ' ' << flush;
     file_in.str("");
 
     uint32_t loop_cnt = 0;
@@ -210,12 +221,12 @@ int main(int argc, char **argv)
 
             while (len < dictionary.length())
             {
-                if (dictionary.find(">", i) - i + 1 > 6 && dictionary.find(" ", i) - i + 1 > 6)
+                if (dictionary.find(">", i) - i + 1 > 6 && dictionary.find(' ', i) - i + 1 > 6)
                     piece = dictionary.substr(i, 2);
-                else if (dictionary.find(" ", i) != string::npos)
+                else if (dictionary.find(' ', i) != string::npos)
                 {
-                    piece = dictionary.substr(i, (dictionary.find(" ", i) - i + 1));
-                    while (dictionary.find(" ", i) - i <= 3)
+                    piece = dictionary.substr(i, (dictionary.find(' ', i) - i + 1));
+                    while (dictionary.find(' ', i) - i <= 3)
                     {
                         piece += dictionary[i];
                         i++;
